@@ -139,7 +139,6 @@ Open an order from **Orders**, select **Print receipt**, and then use the browse
 The **Customers** screen automatically groups orders by phone number. It displays the customer's order count, lifetime spend, and most recent visit. No separate customer-entry step is required.
 
 ### View and export reports
-
 The **Reports** screen includes:
 
 - Gross payments received
