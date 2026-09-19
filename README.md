@@ -258,7 +258,6 @@ Run a fresh build and deploy the newly generated `dist/` directory:
 ```bash
 npm run build
 ```
-
 Then perform a hard refresh in the browser to clear cached assets.
 
 ## Security and production notes
@@ -272,7 +271,6 @@ The current app has no login system, server, cloud database, or role permissions
 - Controlled handling and retention of customer contact information
 
 ## Business details
-
 **Open Doors Laundromat**  
 Chuna Mall, Ground Floor, Shop 10  
 Kitengela, Kenya
