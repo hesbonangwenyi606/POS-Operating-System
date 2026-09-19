@@ -5,7 +5,6 @@ A responsive, browser-based point-of-sale system for Open Doors Laundromat. It h
 The application uses the service prices published in the Open Doors corporate brochure and formats all money in Kenyan shillings (KES).
 
 ## Features
-
 - Searchable laundry service catalog grouped by category
 - Shopping cart with quantity controls and automatic totals
 - Customer name, phone number, care notes, and fulfilment capture
