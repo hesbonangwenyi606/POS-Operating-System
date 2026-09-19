@@ -223,9 +223,7 @@ laondary/
 - Tax is presented as included; the application does not add a separate tax amount.
 
 ## Troubleshooting
-
 ### `vite: not found`
-
 Install the project dependencies:
 
 ```bash
