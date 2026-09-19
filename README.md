@@ -195,7 +195,6 @@ location.reload();
 This permanently removes locally stored POS data for the application.
 
 ## Project structure
-
 ```text
 laondary/
 ├── index.html          # Application HTML entry point and font loading
