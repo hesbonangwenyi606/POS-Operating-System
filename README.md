@@ -262,7 +262,6 @@ npm run build
 Then perform a hard refresh in the browser to clear cached assets.
 
 ## Security and production notes
-
 The current app has no login system, server, cloud database, or role permissions. Do not treat browser storage as a secure customer database. Before using the POS across multiple tills or over the public internet, add:
 
 - User authentication and cashier roles
