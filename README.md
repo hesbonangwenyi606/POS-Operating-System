@@ -253,7 +253,6 @@ Confirm that the same browser profile and URL are being used. `localhost`, `127.
 Open the receipt modal before printing, then use its **Print receipt** button. Enable background graphics in the print dialog if the printer/browser supports them.
 
 ### Changes do not appear after deployment
-
 Run a fresh build and deploy the newly generated `dist/` directory:
 
 ```bash
