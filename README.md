@@ -241,18 +241,15 @@ npm run dev -- --port 4173
 ```
 
 ### Another device cannot open the POS
-
 - Use the `Network` URL printed by Vite, not `localhost`.
 - Confirm both devices are on the same network.
 - Confirm the computer's firewall permits incoming traffic on the selected port.
 - Keep the Vite terminal running.
 
 ### Saved orders disappeared
-
 Confirm that the same browser profile and URL are being used. `localhost`, `127.0.0.1`, and a network IP are separate browser origins and therefore have separate local-storage records.
 
 ### The receipt prints with the application interface
-
 Open the receipt modal before printing, then use its **Print receipt** button. Enable background graphics in the print dialog if the printer/browser supports them.
 
 ### Changes do not appear after deployment
