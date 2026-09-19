@@ -208,7 +208,6 @@ laondary/
 ```
 
 ## Available scripts
-
 | Command | Purpose |
 | --- | --- |
 | `npm run dev` | Start the live-reloading development server |
