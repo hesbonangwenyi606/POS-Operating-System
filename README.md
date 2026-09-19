@@ -1,5 +1,4 @@
 # Open Doors Laundromat POS
-
 A responsive, browser-based point-of-sale system for Open Doors Laundromat. It handles service selection, checkout, payments, laundry workflow tracking, printable receipts, customer history, pricing, and sales reporting.
 
 The application uses the service prices published in the Open Doors corporate brochure and formats all money in Kenyan shillings (KES).
