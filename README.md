@@ -27,7 +27,6 @@ The application uses the service prices published in the Open Doors corporate br
 - Local persistence between browser sessions
 
 ## Requirements
-
 - [Node.js](https://nodejs.org/) 20 or newer
 - npm 10 or newer
 - A modern browser such as Chrome, Edge, Firefox, or Safari
@@ -40,7 +39,6 @@ npm --version
 ```
 
 ## Installation
-
 From the project directory:
 
 ```bash
