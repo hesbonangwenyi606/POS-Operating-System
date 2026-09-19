@@ -216,7 +216,6 @@ laondary/
 | `npm run preview` | Serve the production build locally for verification |
 
 ## Browser and currency behavior
-
 - Currency values use the `en-KE` locale and `KES` currency.
 - Dates and times follow the browser's local timezone.
 - Order numbers use the `OD-####` format and increment from the highest saved order number.
