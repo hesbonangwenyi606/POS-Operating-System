@@ -135,7 +135,6 @@ Use `Cancelled` for an order that will not be fulfilled.
 Open an order from **Orders**, select **Print receipt**, and then use the browser print dialog. The print stylesheet hides the application interface and prints only the receipt.
 
 ### View customers
-
 The **Customers** screen automatically groups orders by phone number. It displays the customer's order count, lifetime spend, and most recent visit. No separate customer-entry step is required.
 
 ### View and export reports
