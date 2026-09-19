@@ -161,7 +161,6 @@ Select **Export report** to download all orders as a CSV file. The same export i
 Use **Reset defaults** to restore the complete price list originally loaded from the brochure. This replaces all locally edited services and removes locally added services.
 
 ## Data storage
-
 This version is a single-device POS. Orders and service changes are stored in the browser's `localStorage` under these keys:
 
 | Key | Contents |
