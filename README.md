@@ -67,7 +67,6 @@ Because the development server listens on all network interfaces, another device
 Stop the server by pressing `Ctrl+C` in the terminal where it is running.
 
 ## Administrator login
-
 The POS opens on an administrator sign-in screen. Use the initial credentials:
 
 ```text
@@ -80,7 +79,6 @@ The login is valid for the current browser session. Closing the browser session 
 This client-side login is intended for a single-device demonstration or controlled local environment. The credentials are part of the frontend source and are not suitable for a public production deployment. Connect the application to secure server-side authentication before exposing it to the internet.
 
 ## Production build
-
 Create an optimized production build:
 
 ```bash
