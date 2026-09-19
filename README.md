@@ -152,7 +152,6 @@ The **Reports** screen includes:
 Select **Export report** to download all orders as a CSV file. The same export is available from the **Orders** screen.
 
 ### Change services and prices
-
 1. Open **Services & prices**.
 2. Select **Edit** beside an existing service, or select **Add service**.
 3. Enter the service name, category, and KES price.
