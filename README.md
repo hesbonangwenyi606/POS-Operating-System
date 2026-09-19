@@ -49,7 +49,6 @@ npm install
 ```
 
 ## Run the POS
-
 Start the development server:
 
 ```bash
