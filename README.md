@@ -181,7 +181,6 @@ Important consequences:
 This local-storage design is suitable for a single till or demonstration deployment. A production setup involving multiple cashiers or devices should use an authenticated backend and database.
 
 ## Seed data
-
 On first launch, the application shows three example orders so the order, customer, and report screens are immediately demonstrable. Once orders are saved, the browser uses its stored order data.
 
 To return to a completely fresh browser state, open the browser developer console for this site and run:
