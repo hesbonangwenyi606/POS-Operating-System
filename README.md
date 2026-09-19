@@ -98,7 +98,6 @@ npm run preview
 The contents of `dist/` can be deployed to any static host, including Netlify, Cloudflare Pages, GitHub Pages, an Nginx server, or shared hosting that supports static files.
 
 ## Daily usage
-
 ### Create an order
 
 1. Open **Point of sale**.
@@ -115,7 +114,6 @@ The contents of `dist/` can be deployed to any static host, including Netlify, C
 Normal service is due in 24 hours. Express service is due in 4 hours and adds 30% to the discounted order calculation.
 
 ### Update an order
-
 1. Open **Orders**.
 2. Search by order number, customer name, or phone number if necessary.
 3. Select an order number or the menu button on its row.
@@ -131,7 +129,6 @@ Received → Cleaning → Ready → Collected
 Use `Cancelled` for an order that will not be fulfilled.
 
 ### Print a receipt
-
 Open an order from **Orders**, select **Print receipt**, and then use the browser print dialog. The print stylesheet hides the application interface and prints only the receipt.
 
 ### View customers
