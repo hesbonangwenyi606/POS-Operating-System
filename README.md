@@ -233,7 +233,6 @@ npm install
 Then run `npm run dev` again.
 
 ### Port 5173 is already in use
-
 Vite normally chooses another available port and prints it in the terminal. To request a specific port:
 
 ```bash
