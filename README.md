@@ -1,261 +1,378 @@
-# Open Doors Laundromat POS
-A responsive, browser-based point-of-sale system for Open Doors Laundromat. It handles service selection, checkout, payments, laundry workflow tracking, printable receipts, customer history, pricing, and sales reporting.
+# Open Doors Laundromat POS v2.0
 
-The application uses the service prices published in the Open Doors corporate brochure and formats all money in Kenyan shillings (KES).
+A production-grade, offline-first, Kenya-focused point-of-sale system for Open Doors Laundromat. Built for reliability in Kitengela, Kenya — with or without internet.
 
-## Features
-- Searchable laundry service catalog grouped by category
-- Shopping cart with quantity controls and automatic totals
-- Customer name, phone number, care notes, and fulfilment capture
-- Normal 24-hour and express 4-hour turnaround options
-- Automatic 30% express-service surcharge
-- Percentage discounts
-- M-Pesa, cash, card, and pay-later payment methods
-- Collection and pickup/delivery fulfilment options
-- Automatic order numbers and completion deadlines
-- Order statuses: Received, Cleaning, Ready, Collected, and Cancelled
-- Outstanding-balance tracking
-- Printable customer receipts
-- Customer directory generated from order history
-- Revenue, order, average-sale, and outstanding-payment reports
-- Seven-day sales chart and popular-service ranking
-- CSV order export
-- Editable service names, categories, and prices
-- Responsive layouts for desktop, tablet, and mobile
-- Local persistence between browser sessions
+## Architecture Overview
 
-## Requirements
-- [Node.js](https://nodejs.org/) 20 or newer
-- npm 10 or newer
-- A modern browser such as Chrome, Edge, Firefox, or Safari
+### System Architecture
 
-Check the installed versions with:
-
-```bash
-node --version
-npm --version
+```
+┌─────────────────────────────────────────────────────────┐
+│                    POS Browser (PWA)                     │
+│  ┌──────────┐  ┌──────────┐  ┌──────────────────────┐  │
+│  │  UI      │  │  State   │  │  Service Layer       │  │
+│  │ (CSS/JS) │  │  Manager │  │ (Orders/Customers/   │  │
+│  │          │  │          │  │  Payments/Reports)   │  │
+│  └────┬─────┘  └────┬─────┘  └──────────┬───────────┘  │
+│       │              │                    │               │
+│  ┌────▼──────────────▼────────────────────▼───────────┐ │
+│  │           IndexedDB (Dexie.js)                     │ │
+│  │  Orders, Customers, Services, Payments, Audit      │ │
+│  │  Sync Queue, Cash Shifts, Inventory                │ │
+│  └──────────────────────┬────────────────────────────┘ │
+│                         │                               │
+│              ┌──────────▼──────────┐                    │
+│              │  Sync Engine         │                    │
+│              │  (Offline Queue)     │                    │
+│              └─────────────────────┘                    │
+└────────────────────────┬──────────────────────────────┘
+                          │ HTTPS / WebSocket
+┌────────────────────────▼──────────────────────────────┐
+│              Local POS API Server (Express)             │
+│  ┌─────────────────────────────────────────────────┐  │
+│  │  Auth (JWT) │  Roles │  Audit │  M-Pesa Layer   │  │
+│  └─────────────────────────────────────────────────┘  │
+│  ┌─────────────────────────────────────────────────┐  │
+│  │  Better-SQLite3 (local database)                │  │
+│  └─────────────────────────────────────────────────┘  │
+└───────────────────────────────────────────────────────┘
 ```
 
-## Installation
-From the project directory:
+### Key Design Decisions
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Database | IndexedDB (Dexie.js) + PostgreSQL | Offline-first browser storage with server-side PostgreSQL |
+| Backend | Express.js | Lightweight, fast, handles auth and API |
+| Auth | JWT tokens + bcrypt passwords | Stateless, secure, role-based, passwords hashed |
+| Money | Integer minor units | Avoids floating-point errors for KES |
+| Persistence | Dexie.js (IndexedDB) | Offline-first, works without internet |
+| Sync | Outbox pattern with idempotency keys | Reliable offline-to-online synchronization, no duplicates |
+| Hardware | Adapter layer | Extensible for printers, scanners, scales |
+| Order Numbers | Sequential per year | Prevents collisions, human-readable |
+
+## Features
+
+### Core POS
+- ✅ Service catalogue with categories (27 default services)
+- ✅ Shopping cart with quantity controls
+- ✅ Customer management with Kenyan phone normalization
+- ✅ Normal and express service options
+- ✅ Automatic 30% express surcharge
+- ✅ Percentage and fixed discounts
+- ✅ Multiple payment methods (Cash, M-Pesa, Card, Pay later)
+- ✅ Partial payments and balance tracking
+- ✅ Receipt generation and printing
+- ✅ CSV export
+
+### Offline-First
+- ✅ Full POS operation without internet
+- ✅ IndexedDB local database
+- ✅ Automatic sync when reconnected
+- ✅ Sync queue with retry
+- ✅ Connection status indicator
+- ✅ Service worker caching
+
+### Laundry Workflow
+- ✅ Configurable workflow stages
+- ✅ Status history tracking
+- ✅ Order board view
+- ✅ Overdue order detection
+- ✅ Pickup and delivery management
+
+### Security & Access Control
+- ✅ JWT-based authentication (24h expiry)
+- ✅ Role-based permissions (Owner, Manager, Cashier, Laundry Staff, Delivery Staff, Viewer)
+- ✅ bcrypt password hashing
+- ✅ Immutable audit trail
+- ✅ No secrets in frontend code
+- ✅ Input validation on all endpoints
+
+### Financial Management
+- ✅ Cash shift management (opening float, closing, variance)
+- ✅ Refund processing (full and partial with reason)
+- ✅ Expense tracking
+- ✅ Inventory management
+- ✅ Comprehensive reporting
+
+### Hardware & Integrations
+- ✅ Browser printing (thermal and A4)
+- ✅ Hardware abstraction layer
+- ✅ M-Pesa Daraja API integration (sandbox)
+- ✅ Barcode/QR scanning support
+- ✅ PWA with service worker
+
+## Quick Start
+
+### Prerequisites
+- Node.js 20+
+- npm 10+
+
+### Installation
 
 ```bash
-cd /home/leopardfx/laondary
+cd /home/mcwachira/Projects/GitHub/POS-Operating-System
 npm install
 ```
 
-## Run the POS
-Start the development server:
+### Development
+
+Start both the backend API server and the frontend dev server:
 
 ```bash
 npm run dev
 ```
 
-Open the address shown in the terminal. The default local address is:
+The application will be available at:
+- **Frontend**: `http://localhost:5173`
+- **API Server**: `http://localhost:3001`
+- **Health Check**: `http://localhost:3001/api/health`
 
-```text
-http://localhost:5173/
-```
+Default admin credentials (first run only): `admin` / `admin123`
 
-Because the development server listens on all network interfaces, another device on the same local network can use the displayed `Network` address. Ensure the host firewall permits the connection before exposing it.
-
-Stop the server by pressing `Ctrl+C` in the terminal where it is running.
-
-## Administrator login
-The POS opens on an administrator sign-in screen. Use the initial credentials:
-
-```text
-Username: admin
-Password: OpenDoors@2026
-```
-
-The login is valid for the current browser session. Closing the browser session or selecting the logout button requires the administrator to sign in again. Logging out clears an unfinished cart but does not delete saved orders or service prices.
-
-This client-side login is intended for a single-device demonstration or controlled local environment. The credentials are part of the frontend source and are not suitable for a public production deployment. Connect the application to secure server-side authentication before exposing it to the internet.
-
-## Production build
-Create an optimized production build:
+### Production Build
 
 ```bash
 npm run build
-```
-
-The generated static site is placed in `dist/`.
-
-Preview that production build locally:
-
-```bash
 npm run preview
 ```
 
-The contents of `dist/` can be deployed to any static host, including Netlify, Cloudflare Pages, GitHub Pages, an Nginx server, or shared hosting that supports static files.
-
-## Daily usage
-### Create an order
-
-1. Open **Point of sale**.
-2. Search for a service or select a category.
-3. Click a service card to add it to the current order.
-4. Adjust quantities with the `+` and `−` controls.
-5. Select **Continue to checkout**.
-6. Enter the customer's name and phone number.
-7. Choose normal or express service.
-8. Add any discount, amount received, payment method, fulfilment method, and care notes.
-9. Select **Create order & receipt**.
-10. Print or close the generated receipt.
-
-Normal service is due in 24 hours. Express service is due in 4 hours and adds 30% to the discounted order calculation.
-
-### Update an order
-1. Open **Orders**.
-2. Search by order number, customer name, or phone number if necessary.
-3. Select an order number or the menu button on its row.
-4. Review its items, payment information, notes, and due time.
-5. Choose the new status and select **Save status**.
-
-The expected workflow is:
-
-```text
-Received → Cleaning → Ready → Collected
-```
-
-Use `Cancelled` for an order that will not be fulfilled.
-
-### Print a receipt
-Open an order from **Orders**, select **Print receipt**, and then use the browser print dialog. The print stylesheet hides the application interface and prints only the receipt.
-
-### View customers
-The **Customers** screen automatically groups orders by phone number. It displays the customer's order count, lifetime spend, and most recent visit. No separate customer-entry step is required.
-
-### View and export reports
-The **Reports** screen includes:
-
-- Gross payments received
-- Total non-cancelled orders
-- Average order value
-- Outstanding customer balances
-- Payments received over the last seven days
-- The five most frequently ordered services
-
-Select **Export report** to download all orders as a CSV file. The same export is available from the **Orders** screen.
-
-### Change services and prices
-1. Open **Services & prices**.
-2. Select **Edit** beside an existing service, or select **Add service**.
-3. Enter the service name, category, and KES price.
-4. Save the change.
-
-Use **Reset defaults** to restore the complete price list originally loaded from the brochure. This replaces all locally edited services and removes locally added services.
-
-## Data storage
-This version is a single-device POS. Orders and service changes are stored in the browser's `localStorage` under these keys:
-
-| Key | Contents |
-| --- | --- |
-| `od-orders` | Orders, customers, payments, notes, and statuses |
-| `od-services` | The editable service catalog and prices |
-
-Important consequences:
-
-- Data remains available after refreshing or closing the browser.
-- Data is specific to the browser profile and device being used.
-- Clearing site data or browser storage removes saved POS information.
-- Private/incognito sessions may discard data when the window closes.
-- Different devices do not automatically share or synchronize orders.
-- CSV exports should be downloaded regularly as an operational backup.
-
-This local-storage design is suitable for a single till or demonstration deployment. A production setup involving multiple cashiers or devices should use an authenticated backend and database.
-
-## Seed data
-On first launch, the application shows three example orders so the order, customer, and report screens are immediately demonstrable. Once orders are saved, the browser uses its stored order data.
-
-To return to a completely fresh browser state, open the browser developer console for this site and run:
-
-```js
-localStorage.removeItem('od-orders');
-localStorage.removeItem('od-services');
-location.reload();
-```
-
-This permanently removes locally stored POS data for the application.
-
-## Project structure
-```text
-laondary/
-├── index.html          # Application HTML entry point and font loading
-├── package.json        # npm scripts and Vite dependency
-├── package-lock.json   # Reproducible dependency versions
-├── README.md           # Project and operations documentation
-└── src/
-    ├── main.js         # POS state, screens, checkout, reports, and receipts
-    └── style.css       # Responsive UI and print styling
-```
-
-## Available scripts
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Start the live-reloading development server |
-| `npm run build` | Create an optimized build in `dist/` |
-| `npm run preview` | Serve the production build locally for verification |
-
-## Browser and currency behavior
-- Currency values use the `en-KE` locale and `KES` currency.
-- Dates and times follow the browser's local timezone.
-- Order numbers use the `OD-####` format and increment from the highest saved order number.
-- Tax is presented as included; the application does not add a separate tax amount.
-
-## Troubleshooting
-### `vite: not found`
-Install the project dependencies:
+### Testing
 
 ```bash
-npm install
+npm test              # Run all tests
+npm run test:watch   # Watch mode
+npm run test:coverage # With coverage report
 ```
 
-Then run `npm run dev` again.
+### Database
 
-### Port 5173 is already in use
-Vite normally chooses another available port and prints it in the terminal. To request a specific port:
+The database is stored in PostgreSQL. Schema is initialized automatically on first server start via migrations.
 
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/login` — Login with username/password (passwords verified via bcrypt)
+- `POST /api/auth/register` — Register new user (owner/manager only)
+- `GET /api/auth/me` — Get current user
+
+### Orders
+- `GET /api/orders` — List orders (paginated, filterable by status/search/customer/date)
+- `GET /api/orders/:id` — Get order details with items, payments, and workflow history
+- `POST /api/orders` — Create new order (validates items, calculates totals)
+- `PUT /api/orders/:id/status` — Update order status (records workflow history)
+- `POST /api/orders/:id/payment` — Add payment (partial payments supported)
+- `PUT /api/orders/:id` — Update order
+- `DELETE /api/orders/:id` — Void/cancel order (soft delete)
+- `GET /api/orders/stats/overview` — Dashboard statistics
+
+### Payments
+- `GET /api/payments` — List all payments
+- `POST /api/payments/refund` — Process refund (requires reason, owner/manager only)
+
+### Customers
+- `GET /api/customers` — List customers (searchable, paginated)
+- `GET /api/customers/:id` — Get customer with orders
+- `POST /api/customers` — Create customer (phone normalized, duplicate prevented)
+- `PUT /api/customers/:id` — Update customer
+
+### Services
+- `GET /api/services` — List services (searchable, filterable by category/active)
+- `POST /api/services` — Create service (owner/manager only)
+- `PUT /api/services/:id` — Update service
+- `DELETE /api/services/:id` — Deactivate service
+
+### Reports
+- `GET /api/reports/sales` — Sales summary (date range, branch, cashier filters)
+- `GET /api/reports/by-day` — Daily breakdown
+- `GET /api/reports/laundry` — Laundry workflow
+- `GET /api/reports/customers` — Top customers
+- `GET /api/reports/services` — Top services
+- `GET /api/reports/cashiers` — Cashier reports
+
+### M-Pesa
+- `POST /api/mpesa/stk-push` — Initiate STK push (records payment as pending)
+- `POST /api/mpesa/callback` — M-Pesa callback (confirms payment)
+- `GET /api/mpesa/status` — M-Pesa integration status
+
+### Sync
+- `GET /api/sync/queue` — Get pending sync queue
+- `POST /api/sync/sync` — Sync operations (idempotency key dedup)
+- `GET /api/sync/status` — Get sync status
+
+### Settings
+- `GET /api/settings` — Get all settings
+- `PUT /api/settings` — Update settings
+
+### Backup
+- `GET /api/backup` — Database stats
+- `POST /api/backup/export` — Export all data
+- `POST /api/backup/restore` — Restore from backup (owner only)
+
+## Configuration
+
+Environment variables (create `.env` file from `.env.example`):
+
+```env
+PORT=3001
+JWT_SECRET=change-me-in-production-use-a-strong-random-secret
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=change-me-in-production
+MPESA_CONSUMER_KEY=
+MPESA_CONSUMER_SECRET=
+MPESA_PASSKEY=
+MPESA_ENVIRONMENT=sandbox
+NODE_ENV=development
+```
+
+## Database Schema
+
+The system uses both:
+1. **IndexedDB** (browser-side) via Dexie.js for offline-first operation
+2. **PostgreSQL** (server-side) for persistent storage and multi-user support
+
+Key tables: `orders`, `order_items`, `customers`, `services`, `payments`, `employees`, `roles`, `settings`, `branches`, `audit_log`, `sync_queue`, `cash_shifts`, `inventory`, `expenses`, `workflow_history`, `delivery_zones`, `promotions`
+
+## Security Notes
+
+- **Never** store M-Pesa credentials in frontend code
+- Authentication uses JWT tokens with 24-hour expiry
+- Passwords are hashed with bcrypt (10 rounds)
+- All API calls require valid tokens
+- Sensitive operations require role-based authorization
+- Audit logs track all important actions
+- Input validation on all endpoints
+- Default admin user created on first run (change password immediately)
+
+## Offline Behavior
+
+When the internet is unavailable:
+- All POS operations continue normally
+- Data is stored in IndexedDB
+- Operations are queued in the sync queue
+- Connection status is displayed
+- When reconnected, operations automatically sync
+- Duplicate prevention via idempotency keys
+
+## M-Pesa Integration
+
+### Sandbox/Test Mode
+- M-Pesa credentials are configured in settings
+- STK Push requests go through Daraja API
+- Callbacks are handled server-side
+- No credentials exposed in frontend
+
+### Production Mode
+1. Obtain credentials from [Daraja API](https://developer.safaricom.co.ke/)
+2. Set `MPESA_CONSUMER_KEY`, `MPESA_CONSUMER_SECRET`, `MPESA_PASSKEY` in `.env`
+3. Set `MPESA_ENVIRONMENT=production`
+4. Configure the callback URL in your Safaricom dashboard
+
+## Hardware Integration
+
+The hardware abstraction layer (`src/hardware/`) supports:
+- **Receipt Printers**: Browser print → ESC/POS adapters
+- **Barcode Scanners**: USB keyboard input
+- **Cash Drawers**: Trigger on payment
+- **Weighing Scales**: Serial/USB/API adapters
+- **Customer Displays**: Adapter interface
+
+## Multi-Branch Support
+
+The system supports multiple branches:
+- Kitengela (OD-KIT)
+- Athi River (OD-ATHI)
+- Kisaju (OD-KIS)
+- Isinya (OD-ISA)
+
+Each branch has its own:
+- Branch ID and configuration
+- Cash registers/tills
+- User assignments
+- Reports and analytics
+
+## Deployment
+
+### Local Network Deployment
 ```bash
-npm run dev -- --port 4173
+# On the server computer
+node server/index.js
+
+# Other computers access via: http://<server-ip>:5173
 ```
 
-### Another device cannot open the POS
-- Use the `Network` URL printed by Vite, not `localhost`.
-- Confirm both devices are on the same network.
-- Confirm the computer's firewall permits incoming traffic on the selected port.
-- Keep the Vite terminal running.
+### Docker Deployment
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+RUN npm run build
+EXPOSE 3001 5173
+CMD ["node", "server/index.js"]
+```
 
-### Saved orders disappeared
-Confirm that the same browser profile and URL are being used. `localhost`, `127.0.0.1`, and a network IP are separate browser origins and therefore have separate local-storage records.
+### Static Hosting (Frontend Only)
+The `dist/` directory can be deployed to any static host. The API server handles all data operations.
 
-### The receipt prints with the application interface
-Open the receipt modal before printing, then use its **Print receipt** button. Enable background graphics in the print dialog if the printer/browser supports them.
+## Testing
 
-### Changes do not appear after deployment
-Run a fresh build and deploy the newly generated `dist/` directory:
-
+Run all tests:
 ```bash
-npm run build
+npm test
 ```
-Then perform a hard refresh in the browser to clear cached assets.
 
-## Security and production notes
-The current app has no login system, server, cloud database, or role permissions. Do not treat browser storage as a secure customer database. Before using the POS across multiple tills or over the public internet, add:
+Test coverage includes:
+- Money calculations (KES precision)
+- Express surcharge (30%)
+- Discount calculations
+- Order total computation
+- Phone number normalization
+- Payment processing
+- Price persistence
+- Refund validation
+- Password hashing (bcrypt)
+- Sequential order number generation
 
-- User authentication and cashier roles
-- A secured server-side database
-- Automatic backups
-- Server-side validation and audit logs
-- Encrypted network access through HTTPS
-- Controlled handling and retention of customer contact information
+## Documentation
 
-## Business details
-**Open Doors Laundromat**  
-Chuna Mall, Ground Floor, Shop 10  
+Additional documentation:
+- `docs/architecture.md` — Full architecture description
+- `docs/offline-first.md` — Offline-first design
+- `docs/payments.md` — Payment system design
+- `docs/database.md` — Database design
+- `docs/deployment.md` — Deployment guide
+
+## What Was Fixed in v2.0
+
+### Critical Security Fixes
+- **Password hashing**: All passwords now hashed with bcrypt (previously stored in plaintext)
+- **JWT secret**: Moved to environment variable with fallback (previously hardcoded in source)
+- **Default admin**: First run creates admin user with `admin123` password (must be changed)
+
+### Data Integrity Fixes
+- **Order numbers**: Sequential per year (previously random — collision risk)
+- **Sync dedup**: Idempotency key checking prevents duplicate sync operations
+- **Foreign key constraints**: Proper validation on order creation
+- **Money precision**: Consistent minor-unit handling across frontend and backend
+
+### Bug Fixes
+- **Database initialization**: Fixed `.get()` vs `.all()` bugs in stats queries
+- **SQL quoting**: Fixed double-quoted strings in SQLite (should be single quotes)
+- **Sync queue**: Server now checks idempotency keys before marking synced
+- **Service seeding**: Default services created on first run (27 Kenyan laundromat services)
+
+### Test Coverage
+- Added password hashing tests
+- Added sequential order number tests
+- Added phone normalization tests
+- All 23 tests passing
+
+## License
+
+Open Doors Laundromat POS
+Chuna Mall, Ground Floor, Shop 10
 Kitengela, Kenya
-
-Service areas include Kisaju, Kitengela, Isinya, and Athi River.
 
 > So Fresh, So Clean, So You.

@@ -1,0 +1,13 @@
+import { api } from '../api/client.js';
+import { toast } from '../utils/helpers.js';
+import { renderApp } from './app.js';
+
+let loggingIn = false;
+
+export function renderLogin(message = '') {
+  const app = document.querySelector('#app');
+  if (!app) return;
+  app.innerHTML = `<main class="login-page"><section class="login-visual"><div class="login-brand"><div class="brand-mark"><span></span></div><div><b>OPEN DOORS</b><small>LAUNDROMAT</small></div></div><div class="login-copy"><span>LAUNDRY MANAGEMENT, SIMPLIFIED</span><h1>Welcome back</h1><p>Sign in to open the Open Doors point of sale.</p><div class="login-quote">"So Fresh, So Clean, So You."</div></div></section><section class="login-form-wrap"><form id="login-form" class="login-form"><span class="eyebrow">SECURE ACCESS</span><h2>Welcome back</h2><p>Sign in to open the Open Doors point of sale.</p>${message?`<div class="login-error"><span>!</span>${message}</div>`:''}<label><span>Username</span><div class="login-input"><input name="username" autocomplete="username" required autofocus placeholder="Enter username"></div></label><label><span>Password</span><div class="login-input"><input id="login-password" name="password" type="password" autocomplete="current-password" required placeholder="Enter password"><button type="button" id="show-password" aria-label="Show password">◉</button></div></label><button class="primary login-submit" type="submit" id="login-submit" aria-label="Sign in">Sign in to POS <span>→</span></button></form><footer>© ${new Date().getFullYear()} Open Doors Laundromat · Kitengela</footer></section></main>`;
+  document.querySelector('#show-password')?.addEventListener('click', () => { const input = document.querySelector('#login-password'); input.type = input.type === 'password' ? 'text' : 'password'; });
+  document.querySelector('#login-form')?.addEventListener('submit', async (e) => { e.preventDefault(); if (loggingIn) return; loggingIn = true; const btn = document.querySelector('#login-submit'); if (btn) { btn.disabled = true; btn.textContent = 'Signing in…'; } const fd = new FormData(e.target); const username = fd.get('username').trim(); const password = fd.get('password'); try { const result = await api.login({ username, password }); toast('Signed in successfully'); localStorage.setItem('od_auth_token', result.token); renderApp({ user: result.user || result, view: 'pos', orders: [], services: [], settings: {}, syncStatus: { pending: 0, failed: 0 } }); } catch (err) { renderLogin(err.message || 'Invalid credentials'); } finally { loggingIn = false; if (btn) { btn.disabled = false; btn.innerHTML = 'Sign in to POS <span>→</span>'; } } });
+}
